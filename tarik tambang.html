@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tarik Tambang Matematika</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- SCREEN 1: MENU UTAMA --- */
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 10;
+        }
+        #menu-screen h1 {
+            color: #ff9800;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .input-nama {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .input-nama:focus {
+            border-color: #ff9800;
+            outline: none;
+        }
+        #btn-start {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        #btn-start:active {
+            background: #45a049;
+        }
+
+        /* --- SCREEN 2: GAMEPLAY (Sembunyi di awal) --- */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+        }
+
+        #area-atas {
+            width: 100%;
+            background: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .label-tim {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .biru { color: blue; }
+        .hijau { color: green; }
+
+        #tali-container {
+            width: 100%;
+            height: 16px;
+            background-color: #ddd;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        #bendera {
+            width: 16px;
+            height: 16px;
+            background-color: red;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.2s ease;
+        }
+
+        #box-soal {
+            background: #ff9800;
+            color: white;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #area-kontrol {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+            flex: 1;
+            margin-top: 5px;
+            min-height: 0;
+        }
+
+        .sisi-pemain {
+            flex: 1;
+            background: #fff;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .layar-input {
+            width: 100%;
+            background: #f9f9f9;
+            padding: 4px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+            margin-top: 4px;
+        }
+        .btn-key {
+            background: #f1f1f1;
+            border: 1px solid #bbb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .btn-key:active {
+            background: #ddd;
+        }
+        .btn-clear {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        .btn-clear:active {
+            background: #da190b;
+        }
+        .btn-confirm {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .btn-confirm:active {
+            background: #45a049;
+        }
+
+        /* --- SCREEN 3: KEMBANG API & MENANG (Sembunyi) --- */
+        #victory-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 20;
+            text-align: center;
+        }
+        #victory-screen h2 {
+            font-size: 28px;
+            color: #ffeb3b;
+            margin-bottom: 10px;
+            animation: popIn 0.5s ease-in-out;
+        }
+        #victory-screen p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        #btn-restart {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Animasi kembang api sederhana */
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            animation: explode 1s ease-out infinite;
+        }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(12); opacity: 0; }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-screen">
+        <h1>Tarik Tambang MTK</h1>
+        <input type="text" id="nama-p1" class="input-nama" placeholder="Nama Pemain Kiri" value="Pemain 1">
+        <input type="text" id="nama-p2" class="input-nama" placeholder="Nama Pemain Kanan" value="Pemain 2">
+        <button id="btn-start" onclick="mulaiGame()">MAIN SEKARANG</button>
+    </div>
+
+    <div id="game-screen">
+        <div id="area-atas">
+            <div class="label-tim">
+                <span class="biru" id="label-p1">PEMAIN 1</span>
+                <span id="status-game" style="color: #333;">Adu cepat jawab!</span>
+                <span class="hijau" id="label-p2">PEMAIN 2</span>
+            </div>
+            <div id="tali-container">
+                <div id="bendera"></div>
+            </div>
+            <div id="box-soal">Menunggu soal...</div>
+        </div>
+
+        <div id="area-kontrol">
+            <div class="sisi-pemain">
+                <div class="layar-input">
+                    Kiri: <span id="input-p1">-</span>
+                </div>
+                <div class="keypad">
+                    <div class="btn-key" onclick="tekanAngka(1, 1)">1</div>
+                    <div class="btn-key" onclick="tekanAngka(2, 1)">2</div>
+                    <div class="btn-key" onclick="tekanAngka(3, 1)">3</div>
+                    <div class="btn-key" onclick="tekanAngka(4, 1)">4</div>
+                    <div class="btn-key" onclick="tekanAngka(5, 1)">5</div>
+                    <div class="btn-key" onclick="tekanAngka(6, 1)">6</div>
+                    <div class="btn-key" onclick="tekanAngka(7, 1)">7</div>
+                    <div class="btn-key" onclick="tekanAngka(8, 1)">8</div>
+                    <div class="btn-key" onclick="tekanAngka(9, 1)">9</div>
+                    <div class="btn-key btn-clear" onclick="hapusAngka(1)">C</div>
+                    <div class="btn-key" onclick="tekanAngka(0, 1)">0</div>
+                    <div class="btn-key btn-confirm" onclick="konfirmasiJawaban(1)">OK</div>
+                </div>
+            </div>
+
+            <div class="sisi-pemain">
+                <div class="layar-input">
+                    Kanan: <span id="input-p2">-</span>
+                </div>
+                <div class="keypad">
+                    <div class="btn-key" onclick="tekanAngka(1, 2)">1</div>
+                    <div class="btn-key" onclick="tekanAngka(2, 2)">2</div>
+                    <div class="btn-key" onclick="tekanAngka(3, 2)">3</div>
+                    <div class="btn-key" onclick="tekanAngka(4, 2)">4</div>
+                    <div class="btn-key" onclick="tekanAngka(5, 2)">5</div>
+                    <div class="btn-key" onclick="tekanAngka(6, 2)">6</div>
+                    <div class="btn-key" onclick="tekanAngka(7, 2)">7</div>
+                    <div class="btn-key" onclick="tekanAngka(8, 2)">8</div>
+                    <div class="btn-key" onclick="tekanAngka(9, 2)">9</div>
+                    <div class="btn-key btn-clear" onclick="hapusAngka(2)">C</div>
+                    <div class="btn-key" onclick="tekanAngka(0, 2)">0</div>
+                    <div class="btn-key btn-confirm" onclick="konfirmasiJawaban(2)">OK</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="victory-screen">
+        <div class="firework" style="top: 20%; left: 30%; background: #ffeb3b;"></div>
+        <div class="firework" style="top: 40%; left: 70%; background: #ff5722; animation-delay: 0.3s;"></div>
+        <div class="firework" style="top: 70%; left: 20%; background: #00bcd4; animation-delay: 0.6s;"></div>
+        <div class="firework" style="top: 60%; left: 80%; background: #e91e63; animation-delay: 0.1s;"></div>
+        
+        <h2 id="teks-menang">NAMA MENANG!</h2>
+        <p>Selamat! Kamu telah memenangkan tarik tambang matematika!</p>
+        <button id="btn-restart" onclick="keMenuUtama()">MAIN LAGI</button>
+    </div>
+
+    <script>
+        let posisiTali = 50; 
+        let jawabanBenar = 0;
+        let inputP1 = "";
+        let inputP2 = "";
+        let namaP1 = "Pemain 1";
+        let namaP2 = "Pemain 2";
+
+        // Ganti Screen ke Game
+        function mulaiGame() {
+            namaP1 = document.getElementById("nama-p1").value || "Pemain 1";
+            namaP2 = document.getElementById("nama-p2").value || "Pemain 2";
+
+            // Update nama di atas
+            document.getElementById("label-p1").innerText = namaP1.toUpperCase();
+            document.getElementById("label-p2").innerText = namaP2.toUpperCase();
+
+            // Sembunyikan menu, tampilkan game
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "flex";
+
+            resetGame();
+        }
+
+        function buatSoal() {
+            let a = Math.floor(Math.random() * 9) + 1;
+            let b = Math.floor(Math.random() * 9) + 1;
+            jawabanBenar = a * b;
+            
+            document.getElementById("box-soal").innerText = `${a} x ${b} = ?`;
+            
+            inputP1 = "";
+            inputP2 = "";
+            updateLayarInput(1);
+            updateLayarInput(2);
+        }
+
+        function tekanAngka(angka, player) {
+            if (player === 1 && inputP1.length < 3) {
+                inputP1 += angka;
+                updateLayarInput(1);
+            } else if (player === 2 && inputP2.length < 3) {
+                inputP2 += angka;
+                updateLayarInput(2);
+            }
+        }
+
+        function hapusAngka(player) {
+            if (player === 1) {
+                inputP1 = "";
+                updateLayarInput(1);
+            } else {
+                inputP2 = "";
+                updateLayarInput(2);
+            }
+        }
+
+        function updateLayarInput(player) {
+            if (player === 1) {
+                document.getElementById("input-p1").innerText = inputP1 === "" ? "-" : inputP1;
+            } else {
+                document.getElementById("input-p2").innerText = inputP2 === "" ? "-" : inputP2;
+            }
+        }
+
+        function konfirmasiJawaban(player) {
+            let inputSekarang = player === 1 ? inputP1 : inputP2;
+            if (inputSekarang === "") return;
+
+            let jawabanPemain = parseInt(inputSekarang);
+
+            if (jawabanPemain === jawabanBenar) {
+                if (player === 1) {
+                    posisiTali -= 10;
+                    document.getElementById("status-game").innerText = `${namaP1} Benar!`;
+                    document.getElementById("status-game").style.color = "blue";
+                } else {
+                    posisiTali += 10;
+                    document.getElementById("status-game").innerText = `${namaP2} Benar!`;
+                    document.getElementById("status-game").style.color = "green";
+                }
+                cekPemenang();
+                buatSoal();
+            } else {
+                if (player === 1) {
+                    document.getElementById("status-game").innerText = `${namaP1} Salah!`;
+                    document.getElementById("status-game").style.color = "red";
+                    inputP1 = "";
+                    updateLayarInput(1);
+                } else {
+                    document.getElementById("status-game").innerText = `${namaP2} Salah!`;
+                    document.getElementById("status-game").style.color = "red";
+                    inputP2 = "";
+                    updateLayarInput(2);
+                }
+            }
+
+            document.getElementById("bendera").style.left = posisiTali + "%";
+        }
+
+        function cekPemenang() {
+            if (posisiTali <= 10) {
+                tampilkanMenang(namaP1);
+            } else if (posisiTali >= 90) {
+                tampilkanMenang(namaP2);
+            }
+        }
+
+        // Tampilkan layar kembang api pas menang
+        function tampilkanMenang(pemenang) {
+            document.getElementById("teks-menang").innerText = `🎉 ${pemenang.toUpperCase()} MENANG! 🎉`;
+            document.getElementById("victory-screen").style.display = "flex";
+        }
+
+        // Balik ke menu awal
+        function keMenuUtama() {
+            document.getElementById("victory-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "none";
+            document.getElementById("menu-screen").style.display = "flex";
+        }
+
+        function resetGame() {
+            posisiTali = 50;
+            document.getElementById("bendera").style.left = posisiTali + "%";
+            document.getElementById("status-game").innerText = "Adu cepat jawab!";
+            document.getElementById("status-game").style.color = "#333";
+            buatSoal();
+        }
+    </script>
+</body>
+</html>
